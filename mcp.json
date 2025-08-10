@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "actionlint": {
+      "command": "go",
+      "args": ["run", "."],
+      "env": {
+        "SHELLCHECK_COMMAND": "shellcheck",
+        "PYFLAKES_COMMAND": "pyflakes"
+      }
+    }
+  }
+}

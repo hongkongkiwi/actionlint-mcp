@@ -1,0 +1,34 @@
+language: en
+early_access: true
+reviews:
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "**/*.go"
+      instructions: |
+        Review Go code for:
+        - Proper error handling
+        - Idiomatic Go patterns
+        - Performance considerations
+        - Concurrent programming safety
+        - Test coverage
+    - path: ".github/workflows/**"
+      instructions: |
+        Review GitHub Actions workflows for:
+        - Security best practices
+        - Efficiency and caching
+        - Proper permissions
+        - Matrix strategy optimization
+  tools:
+    golangci-lint:
+      enabled: true
+    actionlint:
+      enabled: true
+chat:
+  auto_reply: true

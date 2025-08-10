@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go:*)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "Bash(./actionlint-mcp:*)"
+    ],
+    "deny": []
+  }
+}

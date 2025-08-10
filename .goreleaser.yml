@@ -1,0 +1,260 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - id: actionlint-mcp
+    main: ./main.go
+    binary: actionlint-mcp
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+      - freebsd
+      - openbsd
+      - netbsd
+    goarch:
+      - amd64
+      - arm64
+      - arm
+      - 386
+      - ppc64le
+      - s390x
+      - riscv64
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      # Unsupported combinations
+      - goos: darwin
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: darwin
+        goarch: ppc64le
+      - goos: darwin
+        goarch: s390x
+      - goos: darwin
+        goarch: riscv64
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarch: ppc64le
+      - goos: windows
+        goarch: s390x
+      - goos: windows
+        goarch: riscv64
+      - goos: freebsd
+        goarch: ppc64le
+      - goos: freebsd
+        goarch: s390x
+      - goos: freebsd
+        goarch: riscv64
+      - goos: freebsd
+        goarch: arm
+        goarm: "6"
+      - goos: openbsd
+        goarch: arm
+      - goos: openbsd
+        goarch: ppc64le
+      - goos: openbsd
+        goarch: s390x
+      - goos: openbsd
+        goarch: riscv64
+      - goos: netbsd
+        goarch: ppc64le
+      - goos: netbsd
+        goarch: s390x
+      - goos: netbsd
+        goarch: riscv64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+    mod_timestamp: '{{ .CommitTimestamp }}'
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+      - .github/actionlint.yaml.example
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    output: true
+    args:
+      - sign-blob
+      - '--output-signature=${signature}'
+      - '--output-certificate=${certificate}'
+      - '${artifact}'
+      - '--yes'
+
+sboms:
+  - artifacts: archive
+    documents:
+      - "{{ .ArtifactName }}.sbom.json"
+    cmd: syft
+    args: ["$artifact", "--output", "spdx-json=$document"]
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: 'New Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance Improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: 'Code Refactoring'
+      regexp: '^.*?refactor(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: 'Other Changes'
+      order: 999
+
+release:
+  github:
+    owner: hongkongkiwi
+    name: actionlint-mcp
+  name_template: "v{{.Version}}"
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Actionlint MCP Server {{.Version}}
+    
+    MCP server for linting GitHub Actions workflow files using actionlint.
+    
+    ### Installation
+    
+    #### Using the install script (macOS/Linux)
+    ```bash
+    curl -sSfL https://raw.githubusercontent.com/hongkongkiwi/actionlint-mcp/main/install.sh | sh -s -- -b /usr/local/bin
+    ```
+    
+    #### Using Homebrew
+    ```bash
+    brew tap hongkongkiwi/tap
+    brew install actionlint-mcp
+    ```
+    
+    #### Using Go
+    ```bash
+    go install github.com/hongkongkiwi/actionlint-mcp@v{{.Version}}
+    ```
+    
+    #### Manual Download
+    Download the appropriate binary for your platform from the assets below.
+    
+  footer: |
+    ## Verification
+    
+    All binaries are signed with [cosign](https://github.com/sigstore/cosign). To verify:
+    
+    ```bash
+    cosign verify-blob \
+      --certificate checksums.txt.pem \
+      --signature checksums.txt.sig \
+      checksums.txt
+    ```
+    
+    **Full Changelog**: https://github.com/hongkongkiwi/actionlint-mcp/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+nfpms:
+  - id: packages
+    package_name: actionlint-mcp
+    vendor: hongkongkiwi
+    homepage: https://github.com/hongkongkiwi/actionlint-mcp
+    maintainer: hongkongkiwi
+    description: MCP server for linting GitHub Actions workflow files
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    dependencies:
+      - git
+    recommends:
+      - shellcheck
+      - python3-pyflakes
+    bindir: /usr/bin
+    contents:
+      - src: ./README.md
+        dst: /usr/share/doc/actionlint-mcp/README.md
+      - src: ./LICENSE
+        dst: /usr/share/licenses/actionlint-mcp/LICENSE
+
+dockers:
+  - image_templates:
+      - "ghcr.io/hongkongkiwi/actionlint-mcp:{{ .Tag }}"
+      - "ghcr.io/hongkongkiwi/actionlint-mcp:v{{ .Major }}"
+      - "ghcr.io/hongkongkiwi/actionlint-mcp:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/hongkongkiwi/actionlint-mcp:latest"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/hongkongkiwi/actionlint-mcp"
+      - "--label=org.opencontainers.image.licenses=MIT"
+      - "--platform=linux/amd64,linux/arm64"
+
+# Commented out until separate tap repositories are created
+# brews:
+#   - repository:
+#       owner: hongkongkiwi
+#       name: homebrew-tap
+#       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+#     folder: Formula
+#     homepage: https://github.com/hongkongkiwi/actionlint-mcp
+#     description: MCP server for linting GitHub Actions workflow files
+#     license: MIT
+#     test: |
+#       system "#{bin}/actionlint-mcp", "-version"
+#     dependencies:
+#       - name: go
+#         type: optional
+#       - name: git
