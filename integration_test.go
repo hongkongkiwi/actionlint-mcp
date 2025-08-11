@@ -109,7 +109,7 @@ jobs:
 		wg.Add(1)
 		go func(index int, content string) {
 			defer wg.Done()
-			
+
 			params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 				Arguments: LintWorkflowParams{
 					Content: content,
@@ -365,7 +365,7 @@ func TestMainFunction(t *testing.T) {
 
 		// Test version flag
 		os.Args = []string{"actionlint-mcp", "-version"}
-		
+
 		// We can't easily test main() directly since it calls os.Exit
 		// Instead, test the version variables are set correctly
 		assert.NotEmpty(t, version)
@@ -398,7 +398,7 @@ jobs:`
 		}
 
 		start := time.Now()
-		
+
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 			Arguments: LintWorkflowParams{
 				Content: workflow,
@@ -406,7 +406,7 @@ jobs:`
 		}
 
 		result, err := LintWorkflow(context.Background(), session, params)
-		
+
 		duration := time.Since(start)
 
 		assert.NoError(t, err)
@@ -430,7 +430,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4`
-			
+
 			filePath := filepath.Join(workflowsDir, "workflow"+string(rune('0'+i))+".yml")
 			err := os.WriteFile(filePath, []byte(workflow), 0644)
 			require.NoError(t, err)
@@ -445,7 +445,7 @@ jobs:
 		}
 
 		result, err := CheckAllWorkflows(context.Background(), session, params)
-		
+
 		duration := time.Since(start)
 
 		assert.NoError(t, err)
