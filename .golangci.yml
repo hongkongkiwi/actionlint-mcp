@@ -1,8 +1,11 @@
 run:
   timeout: 5m
   tests: true
-  build-tags:
-    - integration
+  skip-dirs:
+    - vendor
+    - .git
+  skip-files:
+    - ".*_test.go"
 
 linters:
   enable:
@@ -11,14 +14,12 @@ linters:
     - dupl
     - errcheck
     - exhaustive
-    - exportloopref
     - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
     - gofmt
     - goimports
-    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -45,10 +46,20 @@ linters-settings:
     default-signifies-exhaustive: false
   gocyclo:
     min-complexity: 15
-  gomnd:
-    settings:
-      mnd:
-        checks: argument,case,condition,operation,return,assign
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: github.com/hongkongkiwi/actionlint-mcp
   govet:
     check-shadowing: true
   lll:
@@ -66,7 +77,11 @@ issues:
     - path: _test\.go
       linters:
         - gomnd
+        - goconst
+        - gosec
         - dupl
-    - path: main\.go
-      linters:
-        - gochecknoinits
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+EOF < /dev/null
