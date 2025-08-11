@@ -171,7 +171,7 @@ func CheckAllWorkflows(_ context.Context, session *mcp.ServerSession, params *mc
 			},
 		}
 
-		result, err := LintWorkflow(ctx, session, lintParams)
+		result, err := LintWorkflow(context.Background(), session, lintParams)
 		if err != nil {
 			allResults[file] = LintResult{
 				Errors: []LintError{{
