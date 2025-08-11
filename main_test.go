@@ -204,8 +204,8 @@ jobs:
 
 	for name, content := range workflows {
 		filePath := filepath.Join(workflowsDir, name)
-		err := os.WriteFile(filePath, []byte(content), 0o644)
-		require.NoError(suite.T(), err)
+		writeErr := os.WriteFile(filePath, []byte(content), 0o644)
+		require.NoError(suite.T(), writeErr)
 	}
 
 	params := &mcp.CallToolParamsFor[CheckAllWorkflowsParams]{
