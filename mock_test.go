@@ -189,8 +189,7 @@ func TestErrorScenarios(t *testing.T) {
 				assert.Nil(t, result)
 			} else if err == nil {
 				// May or may not error depending on the scenario
-					assert.NotNil(t, result)
-				}
+				assert.NotNil(t, result)
 			}
 		})
 	}
