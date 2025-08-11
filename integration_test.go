@@ -198,7 +198,7 @@ jobs:
 	}
 
 	for path, content := range workflows {
-		err := os.WriteFile(path, []byte(content), 0644)
+		err := os.WriteFile(path, []byte(content), 0o644)
 		require.NoError(t, err)
 	}
 
@@ -210,7 +210,7 @@ jobs:
 	}
 
 	for _, path := range nonWorkflows {
-		err := os.WriteFile(path, []byte("not a workflow"), 0644)
+		err := os.WriteFile(path, []byte("not a workflow"), 0o644)
 		require.NoError(t, err)
 	}
 
@@ -418,7 +418,7 @@ jobs:`
 	t.Run("check_many_workflows_performance", func(t *testing.T) {
 		tempDir := t.TempDir()
 		workflowsDir := filepath.Join(tempDir, ".github", "workflows")
-		err := os.MkdirAll(workflowsDir, 0755)
+		err := os.MkdirAll(workflowsDir, 0o755)
 		require.NoError(t, err)
 
 		// Create many workflow files
@@ -432,7 +432,7 @@ jobs:
       - uses: actions/checkout@v4`
 
 			filePath := filepath.Join(workflowsDir, "workflow"+string(rune('0'+i))+".yml")
-			err := os.WriteFile(filePath, []byte(workflow), 0644)
+			err := os.WriteFile(filePath, []byte(workflow), 0o644)
 			require.NoError(t, err)
 		}
 

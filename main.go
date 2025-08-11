@@ -46,7 +46,7 @@ type LintError struct {
 	Severity string `json:"severity"`
 }
 
-func LintWorkflow(_ context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[LintWorkflowParams]) (*mcp.CallToolResultFor[any], error) {
+func LintWorkflow(_ context.Context, _ *mcp.ServerSession, params *mcp.CallToolParamsFor[LintWorkflowParams]) (*mcp.CallToolResultFor[any], error) {
 	var filePath string
 	var content []byte
 	var err error
@@ -171,7 +171,7 @@ func CheckAllWorkflows(_ context.Context, session *mcp.ServerSession, params *mc
 			},
 		}
 
-		result, err := LintWorkflow(context.Background(), session, lintParams)
+		result, err := LintWorkflow(context.Background(), nil, lintParams)
 		if err != nil {
 			allResults[file] = LintResult{
 				Errors: []LintError{{

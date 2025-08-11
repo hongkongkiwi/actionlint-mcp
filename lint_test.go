@@ -296,7 +296,7 @@ jobs:
       - uses: actions/checkout@v4`
 
 		filePath := filepath.Join(tempDir, "bom.yml")
-		err := os.WriteFile(filePath, []byte(workflow), 0644)
+		err := os.WriteFile(filePath, []byte(workflow), 0o644)
 		require.NoError(t, err)
 
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
@@ -322,7 +322,7 @@ jobs:
 		extensions := []string{".yml", ".yaml", ".YML", ".YAML"}
 		for _, ext := range extensions {
 			filePath := filepath.Join(tempDir, "workflow"+ext)
-			err := os.WriteFile(filePath, []byte(workflow), 0644)
+			err := os.WriteFile(filePath, []byte(workflow), 0o644)
 			require.NoError(t, err)
 
 			params := &mcp.CallToolParamsFor[LintWorkflowParams]{
@@ -339,13 +339,13 @@ jobs:
 
 	t.Run("handle_permission_denied", func(t *testing.T) {
 		filePath := filepath.Join(tempDir, "readonly.yml")
-		err := os.WriteFile(filePath, []byte("name: Test"), 0644)
+		err := os.WriteFile(filePath, []byte("name: Test"), 0o644)
 		require.NoError(t, err)
 
 		// Make file unreadable
-		err = os.Chmod(filePath, 0000)
+		err = os.Chmod(filePath, 0o000)
 		require.NoError(t, err)
-		defer func() { _ = os.Chmod(filePath, 0644) }() // Restore permissions for cleanup
+		defer func() { _ = os.Chmod(filePath, 0o644) }() // Restore permissions for cleanup
 
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 			Arguments: LintWorkflowParams{
@@ -371,7 +371,7 @@ jobs:
 		originalPath := filepath.Join(tempDir, "original.yml")
 		symlinkPath := filepath.Join(tempDir, "symlink.yml")
 
-		err := os.WriteFile(originalPath, []byte(workflow), 0644)
+		err := os.WriteFile(originalPath, []byte(workflow), 0o644)
 		require.NoError(t, err)
 
 		err = os.Symlink(originalPath, symlinkPath)
