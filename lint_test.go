@@ -345,7 +345,7 @@ jobs:
 		// Make file unreadable
 		err = os.Chmod(filePath, 0000)
 		require.NoError(t, err)
-		defer os.Chmod(filePath, 0644) // Restore permissions for cleanup
+		defer func() { _ = os.Chmod(filePath, 0644) }() // Restore permissions for cleanup
 
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 			Arguments: LintWorkflowParams{

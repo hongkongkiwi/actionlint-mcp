@@ -46,26 +46,28 @@ type LintError struct {
 	Severity string `json:"severity"`
 }
 
-func LintWorkflow(ctx context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[LintWorkflowParams]) (*mcp.CallToolResultFor[any], error) {
+func LintWorkflow(_ context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[LintWorkflowParams]) (*mcp.CallToolResultFor[any], error) {
 	var filePath string
 	var content []byte
 	var err error
 
-	if params.Arguments.FilePath != "" {
+	switch {
+	case params.Arguments.FilePath != "":
 		filePath = params.Arguments.FilePath
 		content, err = os.ReadFile(filePath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read file: %w", err)
 		}
-	} else if params.Arguments.Content != "" {
+	case params.Arguments.Content != "":
 		filePath = "inline.yml"
 		content = []byte(params.Arguments.Content)
-	} else {
+	default:
 		return nil, fmt.Errorf("either file_path or content must be provided")
 	}
 
 	// Create linter with default options
-	configFile := ".github/actionlint.yaml"
+	const configFilePath = ".github/actionlint.yaml"
+	configFile := configFilePath
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		configFile = ""
 	}
@@ -133,7 +135,7 @@ func LintWorkflow(ctx context.Context, session *mcp.ServerSession, params *mcp.C
 	}, nil
 }
 
-func CheckAllWorkflows(ctx context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[CheckAllWorkflowsParams]) (*mcp.CallToolResultFor[any], error) {
+func CheckAllWorkflows(_ context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[CheckAllWorkflowsParams]) (*mcp.CallToolResultFor[any], error) {
 	directory := ".github/workflows"
 	if params.Arguments.Directory != "" {
 		directory = params.Arguments.Directory
@@ -145,7 +147,8 @@ func CheckAllWorkflows(ctx context.Context, session *mcp.ServerSession, params *
 	pattern = filepath.Join(directory, "*.yaml")
 	files2, _ := filepath.Glob(pattern)
 
-	files := append(files1, files2...)
+	files := files1
+	files = append(files, files2...)
 
 	if len(files) == 0 {
 		return &mcp.CallToolResultFor[any]{
