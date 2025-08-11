@@ -432,8 +432,8 @@ jobs:
       - uses: actions/checkout@v4`
 
 			filePath := filepath.Join(workflowsDir, "workflow"+string(rune('0'+i))+".yml")
-			err := os.WriteFile(filePath, []byte(workflow), 0o644)
-			require.NoError(t, err)
+			writeErr := os.WriteFile(filePath, []byte(workflow), 0o644)
+			require.NoError(t, writeErr)
 		}
 
 		start := time.Now()

@@ -29,7 +29,7 @@ type LintWorkflowParams struct {
 }
 
 type CheckAllWorkflowsParams struct {
-	Directory string `json:"directory,omitempty" jsonschema:"description=Directory to search for workflow files (defaults to .github/workflows)"`
+	Directory string `json:"directory,omitempty" jsonschema:"description=Directory to search for workflow files"`
 }
 
 type LintResult struct {
@@ -46,7 +46,11 @@ type LintError struct {
 	Severity string `json:"severity"`
 }
 
-func LintWorkflow(_ context.Context, _ *mcp.ServerSession, params *mcp.CallToolParamsFor[LintWorkflowParams]) (*mcp.CallToolResultFor[any], error) {
+func LintWorkflow(
+	_ context.Context,
+	_ *mcp.ServerSession,
+	params *mcp.CallToolParamsFor[LintWorkflowParams],
+) (*mcp.CallToolResultFor[any], error) {
 	var filePath string
 	var content []byte
 	var err error
@@ -68,7 +72,7 @@ func LintWorkflow(_ context.Context, _ *mcp.ServerSession, params *mcp.CallToolP
 	// Create linter with default options
 	const configFilePath = ".github/actionlint.yaml"
 	configFile := configFilePath
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+	if _, statErr := os.Stat(configFile); os.IsNotExist(statErr) {
 		configFile = ""
 	}
 
@@ -135,7 +139,11 @@ func LintWorkflow(_ context.Context, _ *mcp.ServerSession, params *mcp.CallToolP
 	}, nil
 }
 
-func CheckAllWorkflows(_ context.Context, session *mcp.ServerSession, params *mcp.CallToolParamsFor[CheckAllWorkflowsParams]) (*mcp.CallToolResultFor[any], error) {
+func CheckAllWorkflows(
+	_ context.Context,
+	_ *mcp.ServerSession,
+	params *mcp.CallToolParamsFor[CheckAllWorkflowsParams],
+) (*mcp.CallToolResultFor[any], error) {
 	directory := ".github/workflows"
 	if params.Arguments.Directory != "" {
 		directory = params.Arguments.Directory

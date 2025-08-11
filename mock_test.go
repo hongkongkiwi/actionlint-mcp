@@ -89,7 +89,7 @@ jobs:
 			},
 		}
 
-		result, err := LintWorkflow(nil, session, params) // nil context
+		result, err := LintWorkflow(context.TODO(), session, params) // nil context
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 	})
@@ -187,9 +187,8 @@ func TestErrorScenarios(t *testing.T) {
 					assert.Contains(t, err.Error(), scenario.errorContains)
 				}
 				assert.Nil(t, result)
-			} else {
+			} else if err == nil {
 				// May or may not error depending on the scenario
-				if err == nil {
 					assert.NotNil(t, result)
 				}
 			}
@@ -288,7 +287,7 @@ func TestConfigFileHandling(t *testing.T) {
 	t.Run("with_custom_config_file", func(t *testing.T) {
 		// Create a custom actionlint config
 		configDir := ".github"
-		err := os.MkdirAll(configDir, 0755)
+		err := os.MkdirAll(configDir, 0o755)
 		if err != nil {
 			t.Skip("Cannot create .github directory")
 		}
@@ -300,7 +299,7 @@ func TestConfigFileHandling(t *testing.T) {
     - self-hosted`
 
 		configPath := ".github/actionlint.yaml"
-		err = os.WriteFile(configPath, []byte(configContent), 0644)
+		err = os.WriteFile(configPath, []byte(configContent), 0o644)
 		if err != nil {
 			t.Skip("Cannot create config file")
 		}
