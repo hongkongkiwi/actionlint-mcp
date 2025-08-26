@@ -5,6 +5,7 @@ go 1.24.5
 require (
 	github.com/modelcontextprotocol/go-sdk v0.2.0
 	github.com/rhysd/actionlint v1.7.7
+	github.com/stretchr/testify v1.11.0
 )
 
 require (
@@ -19,7 +20,6 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
