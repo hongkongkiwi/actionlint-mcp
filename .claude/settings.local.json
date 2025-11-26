@@ -6,7 +6,13 @@
       "WebFetch(domain:github.com)",
       "Bash(grep:*)",
       "Bash(chmod:*)",
-      "Bash(./actionlint-mcp:*)"
+      "Bash(./actionlint-mcp:*)",
+      "Bash(gh api:*)",
+      "Bash(gh run list:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": []
   }
