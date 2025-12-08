@@ -48,7 +48,7 @@ jobs:
       - run: echo "Hello World"`
 
 	filePath := filepath.Join(suite.tempDir, "valid.yml")
-	err := os.WriteFile(filePath, []byte(validWorkflow), 0644)
+	err := os.WriteFile(filePath, []byte(validWorkflow), 0o644)
 	require.NoError(suite.T(), err)
 
 	// Test with file path
@@ -92,7 +92,7 @@ jobs:
           invalid-option: true`
 
 	filePath := filepath.Join(suite.tempDir, "invalid.yml")
-	err := os.WriteFile(filePath, []byte(invalidWorkflow), 0644)
+	err := os.WriteFile(filePath, []byte(invalidWorkflow), 0o644)
 	require.NoError(suite.T(), err)
 
 	params := &mcp.CallToolParamsFor[LintWorkflowParams]{
@@ -179,7 +179,7 @@ func (suite *ActionlintTestSuite) TestLintWorkflow_NonExistentFile() {
 func (suite *ActionlintTestSuite) TestCheckAllWorkflows_ValidWorkflows() {
 	// Create a workflows directory
 	workflowsDir := filepath.Join(suite.tempDir, ".github", "workflows")
-	err := os.MkdirAll(workflowsDir, 0755)
+	err := os.MkdirAll(workflowsDir, 0o755)
 	require.NoError(suite.T(), err)
 
 	// Create multiple workflow files
@@ -204,8 +204,8 @@ jobs:
 
 	for name, content := range workflows {
 		filePath := filepath.Join(workflowsDir, name)
-		err := os.WriteFile(filePath, []byte(content), 0644)
-		require.NoError(suite.T(), err)
+		writeErr := os.WriteFile(filePath, []byte(content), 0o644)
+		require.NoError(suite.T(), writeErr)
 	}
 
 	params := &mcp.CallToolParamsFor[CheckAllWorkflowsParams]{
@@ -234,7 +234,7 @@ jobs:
 
 func (suite *ActionlintTestSuite) TestCheckAllWorkflows_EmptyDirectory() {
 	emptyDir := filepath.Join(suite.tempDir, "empty")
-	err := os.MkdirAll(emptyDir, 0755)
+	err := os.MkdirAll(emptyDir, 0o755)
 	require.NoError(suite.T(), err)
 
 	params := &mcp.CallToolParamsFor[CheckAllWorkflowsParams]{
@@ -256,7 +256,7 @@ func (suite *ActionlintTestSuite) TestCheckAllWorkflows_EmptyDirectory() {
 func (suite *ActionlintTestSuite) TestCheckAllWorkflows_WithErrors() {
 	// Create a workflows directory
 	workflowsDir := filepath.Join(suite.tempDir, "workflows-with-errors")
-	err := os.MkdirAll(workflowsDir, 0755)
+	err := os.MkdirAll(workflowsDir, 0o755)
 	require.NoError(suite.T(), err)
 
 	// Create a workflow with syntax errors
@@ -273,7 +273,7 @@ jobs:
           echo "Missing quote`
 
 	filePath := filepath.Join(workflowsDir, "invalid.yml")
-	err = os.WriteFile(filePath, []byte(invalidWorkflow), 0644)
+	err = os.WriteFile(filePath, []byte(invalidWorkflow), 0o644)
 	require.NoError(suite.T(), err)
 
 	params := &mcp.CallToolParamsFor[CheckAllWorkflowsParams]{
@@ -339,7 +339,7 @@ func BenchmarkCheckAllWorkflows(b *testing.B) {
 	defer os.RemoveAll(tempDir)
 
 	workflowsDir := filepath.Join(tempDir, ".github", "workflows")
-	err = os.MkdirAll(workflowsDir, 0755)
+	err = os.MkdirAll(workflowsDir, 0o755)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -354,7 +354,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4`
 		filePath := filepath.Join(workflowsDir, "test%d.yml")
-		err := os.WriteFile(filePath, []byte(workflow), 0644)
+		err := os.WriteFile(filePath, []byte(workflow), 0o644)
 		if err != nil {
 			b.Fatal(err)
 		}

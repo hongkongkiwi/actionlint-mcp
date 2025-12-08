@@ -109,7 +109,7 @@ jobs:
 		wg.Add(1)
 		go func(index int, content string) {
 			defer wg.Done()
-			
+
 			params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 				Arguments: LintWorkflowParams{
 					Content: content,
@@ -157,7 +157,7 @@ func TestCheckAllWorkflows_Integration(t *testing.T) {
 	}
 
 	for _, dir := range dirs {
-		err := os.MkdirAll(dir, 0755)
+		err := os.MkdirAll(dir, 0o755)
 		require.NoError(t, err)
 	}
 
@@ -198,7 +198,7 @@ jobs:
 	}
 
 	for path, content := range workflows {
-		err := os.WriteFile(path, []byte(content), 0644)
+		err := os.WriteFile(path, []byte(content), 0o644)
 		require.NoError(t, err)
 	}
 
@@ -210,7 +210,7 @@ jobs:
 	}
 
 	for _, path := range nonWorkflows {
-		err := os.WriteFile(path, []byte("not a workflow"), 0644)
+		err := os.WriteFile(path, []byte("not a workflow"), 0o644)
 		require.NoError(t, err)
 	}
 
@@ -365,7 +365,7 @@ func TestMainFunction(t *testing.T) {
 
 		// Test version flag
 		os.Args = []string{"actionlint-mcp", "-version"}
-		
+
 		// We can't easily test main() directly since it calls os.Exit
 		// Instead, test the version variables are set correctly
 		assert.NotEmpty(t, version)
@@ -398,7 +398,7 @@ jobs:`
 		}
 
 		start := time.Now()
-		
+
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 			Arguments: LintWorkflowParams{
 				Content: workflow,
@@ -406,7 +406,7 @@ jobs:`
 		}
 
 		result, err := LintWorkflow(context.Background(), session, params)
-		
+
 		duration := time.Since(start)
 
 		assert.NoError(t, err)
@@ -418,7 +418,7 @@ jobs:`
 	t.Run("check_many_workflows_performance", func(t *testing.T) {
 		tempDir := t.TempDir()
 		workflowsDir := filepath.Join(tempDir, ".github", "workflows")
-		err := os.MkdirAll(workflowsDir, 0755)
+		err := os.MkdirAll(workflowsDir, 0o755)
 		require.NoError(t, err)
 
 		// Create many workflow files
@@ -430,10 +430,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4`
-			
+
 			filePath := filepath.Join(workflowsDir, "workflow"+string(rune('0'+i))+".yml")
-			err := os.WriteFile(filePath, []byte(workflow), 0644)
-			require.NoError(t, err)
+			writeErr := os.WriteFile(filePath, []byte(workflow), 0o644)
+			require.NoError(t, writeErr)
 		}
 
 		start := time.Now()
@@ -445,7 +445,7 @@ jobs:
 		}
 
 		result, err := CheckAllWorkflows(context.Background(), session, params)
-		
+
 		duration := time.Since(start)
 
 		assert.NoError(t, err)
