@@ -214,8 +214,8 @@ jobs:
 		errorCount:  0,
 	},
 	{
-		name: "empty_workflow",
-		workflow: ``,
+		name:        "empty_workflow",
+		workflow:    ``,
 		expectValid: false,
 		errorCount:  1,
 	},
@@ -245,7 +245,7 @@ func TestLintWorkflow_TableDriven(t *testing.T) {
 			}
 
 			result, err := LintWorkflow(context.Background(), session, params)
-			
+
 			if tc.workflow == "" {
 				// Empty workflow should return an error
 				assert.Error(t, err)
@@ -266,10 +266,10 @@ func TestLintWorkflow_TableDriven(t *testing.T) {
 
 			// Check validity
 			assert.Equal(t, tc.expectValid, lintResult.Valid, "Workflow validity mismatch for %s", tc.name)
-			
+
 			// Check error count if specified
 			if tc.errorCount >= 0 {
-				assert.GreaterOrEqual(t, len(lintResult.Errors), tc.errorCount, 
+				assert.GreaterOrEqual(t, len(lintResult.Errors), tc.errorCount,
 					"Expected at least %d errors for %s, got %d", tc.errorCount, tc.name, len(lintResult.Errors))
 			}
 
@@ -294,9 +294,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4`
-		
+
 		filePath := filepath.Join(tempDir, "bom.yml")
-		err := os.WriteFile(filePath, []byte(workflow), 0644)
+		err := os.WriteFile(filePath, []byte(workflow), 0o644)
 		require.NoError(t, err)
 
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
@@ -322,7 +322,7 @@ jobs:
 		extensions := []string{".yml", ".yaml", ".YML", ".YAML"}
 		for _, ext := range extensions {
 			filePath := filepath.Join(tempDir, "workflow"+ext)
-			err := os.WriteFile(filePath, []byte(workflow), 0644)
+			err := os.WriteFile(filePath, []byte(workflow), 0o644)
 			require.NoError(t, err)
 
 			params := &mcp.CallToolParamsFor[LintWorkflowParams]{
@@ -339,13 +339,13 @@ jobs:
 
 	t.Run("handle_permission_denied", func(t *testing.T) {
 		filePath := filepath.Join(tempDir, "readonly.yml")
-		err := os.WriteFile(filePath, []byte("name: Test"), 0644)
+		err := os.WriteFile(filePath, []byte("name: Test"), 0o644)
 		require.NoError(t, err)
-		
+
 		// Make file unreadable
-		err = os.Chmod(filePath, 0000)
+		err = os.Chmod(filePath, 0o000)
 		require.NoError(t, err)
-		defer os.Chmod(filePath, 0644) // Restore permissions for cleanup
+		defer func() { _ = os.Chmod(filePath, 0o644) }() // Restore permissions for cleanup
 
 		params := &mcp.CallToolParamsFor[LintWorkflowParams]{
 			Arguments: LintWorkflowParams{
@@ -367,13 +367,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4`
-		
+
 		originalPath := filepath.Join(tempDir, "original.yml")
 		symlinkPath := filepath.Join(tempDir, "symlink.yml")
-		
-		err := os.WriteFile(originalPath, []byte(workflow), 0644)
+
+		err := os.WriteFile(originalPath, []byte(workflow), 0o644)
 		require.NoError(t, err)
-		
+
 		err = os.Symlink(originalPath, symlinkPath)
 		require.NoError(t, err)
 
@@ -398,7 +398,7 @@ func TestLintWorkflow_LargeFiles(t *testing.T) {
 		builder.WriteString(`name: Large Workflow
 on: push
 jobs:`)
-		
+
 		for i := 0; i < 100; i++ {
 			builder.WriteString(fmt.Sprintf(`
   job_%d:
@@ -464,11 +464,11 @@ func TestLintWorkflow_ErrorDetails(t *testing.T) {
 	session := &mcp.ServerSession{}
 
 	testCases := []struct {
-		name           string
-		workflow       string
-		expectedInMsg  []string
-		checkLine      bool
-		minLine        int
+		name          string
+		workflow      string
+		expectedInMsg []string
+		checkLine     bool
+		minLine       int
 	}{
 		{
 			name: "syntax_error_with_line_number",
@@ -530,10 +530,10 @@ jobs:
 				for _, err := range lintResult.Errors {
 					if strings.Contains(strings.ToLower(err.Message), strings.ToLower(expected)) {
 						found = true
-						
+
 						// Check line number if required
 						if tc.checkLine && tc.minLine > 0 {
-							assert.GreaterOrEqual(t, err.Line, tc.minLine, 
+							assert.GreaterOrEqual(t, err.Line, tc.minLine,
 								"Error line number should be >= %d, got %d", tc.minLine, err.Line)
 						}
 						break
